@@ -265,7 +265,7 @@ fn handle_chat_area(
     let sections = messages
         .iter()
         .flat_map(|msg| {
-            std::array::IntoIter::new([
+            [
                 TextSection {
                     value: format!("{}: ", msg.get_author()),
                     style: chat_settings.author_style.clone(),
@@ -274,7 +274,7 @@ fn handle_chat_area(
                     value: format!("{}\n", msg.get_text()),
                     style: chat_settings.chat_style.clone(),
                 },
-            ])
+            ]
         })
         .collect::<Vec<_>>();
 
