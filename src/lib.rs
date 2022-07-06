@@ -190,6 +190,11 @@ impl ConnectionId {
     pub fn address(&self) -> SocketAddr {
         self.addr
     }
+    
+    /// Get the uuid assigned to this connection id
+    pub fn uuid(&self) -> Uuid {
+        self.uuid
+    }
 
     pub(crate) fn server(addr: Option<SocketAddr>) -> ConnectionId {
         ConnectionId {
