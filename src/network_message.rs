@@ -17,7 +17,7 @@ use downcast_rs::DowncastSync;
 /// #[typetag::serde]
 /// impl NetworkMessage for PlayerInformation {}
 /// ```
-/// You will also have to mark it with either [`ServerMessage`] or [`ClientMessage`] (or both)
+/// You will also have to mark it with either [`ClientMessage`] or [`ServerMessage`] (or both)
 /// to signal which direction this message can be sent.
 pub trait NetworkMessage: DowncastSync {}
 
@@ -28,9 +28,9 @@ A marker trait to signal that this message should be sent *to* a server
 
 ## Note
 
-You can implement both [`ServerMessage`] and [`ClientMessage`]
+You can implement both [`ClientMessage`] and [`ServerMessage`]
 */
-pub trait ServerMessage: NetworkMessage {
+pub trait ClientMessage: NetworkMessage {
     /// A unique name to identify your message, this needs to be unique __across all included crates__
     ///
     /// A good combination is crate name + struct name
@@ -42,9 +42,9 @@ A marker trait to signal that this message should be sent *to* a client
 
 ## Note
 
-You can implement both [`ClientMessage`] and [`ServerMessage`]
+You can implement both [`ServerMessage`] and [`ClientMessage`]
 */
-pub trait ClientMessage: NetworkMessage {
+pub trait ServerMessage: NetworkMessage {
     /// A unique name to identify your message, this needs to be unique __across all included crates__
     ///
     /// A good combination is crate name + struct name

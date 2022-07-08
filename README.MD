@@ -53,8 +53,8 @@ is more complete.)
 2. Create the messages you wish to exchange beetween a client and server, or vice-versa.
     - Implement Serialize and Deserialize from Serde on it
     - Implement `NetworkMessage`, and make sure to annotate it with `typetag::serde`
-    - Implement `ServerMessage` when it is sent to the server from a client
-    - Implement `ClientMessage` when it is sent to a client from the server
+    - Implement `ClientMessage` when it is sent to the server from a client
+    - Implement `ServerMessage` when it is sent to a client from the server
 
 ```rust
 #[derive(Serialize, Deserialize)]
@@ -67,7 +67,7 @@ struct WhisperMessage {
 impl NetworkMessage for WhisperMessage {}
 
 // In this case, its a client sending a message to a server
-impl ServerMessage for WhisperMessage {
+impl ClientMessage for WhisperMessage {
     const NAME: &'static str = "example:WhisperMessage"; // This name needs to be unique!
     // Otherwise, the recipient will mix up the messages
 }
@@ -76,7 +76,7 @@ impl ServerMessage for WhisperMessage {
 3. On the recipient side, register the type to be received
 
 ```rust
-use bevy_spicy_networking::AppNetworkServerMessage;
+use bevy_spicy_networking::AppNetworkClientMessage;
 
 let appbuilder: &mut AppBuilder = /* Get an AppBuilder, which is returned by bevy from App::build() */;
 

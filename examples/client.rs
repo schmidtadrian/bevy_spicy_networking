@@ -11,7 +11,7 @@ fn main() {
     app.add_plugins(DefaultPlugins);
 
     // You need to add the `ClientPlugin` first before you can register
-    // `ClientMessage`s
+    // `ServerMessage`s
     app.add_plugin(bevy_spicy_networking::ClientPlugin);
 
     // A good way to ensure that you are not forgetting to register
