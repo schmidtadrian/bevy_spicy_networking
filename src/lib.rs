@@ -18,13 +18,13 @@ A spicy simple networking plugin for Bevy
 Using this plugin is meant to be straightforward. You have one server and multiple clients.
 You simply add either the `ClientPlugin` or the `ServerPlugin` to the respective bevy app,
 register which kind of messages can be received through `listen_for_client_message` or `listen_for_server_message`
-(provided respectively by `AppNetworkServerMessage` and `AppNetworkClientMessage`) and you
+(provided respectively by `AppNetworkClientMessage` and `AppNetworkServerMessage`) and you
 can start receiving packets as events of `NetworkData<T>`.
 
 ## Example Client
 ```rust,no_run
 use bevy::prelude::*;
-use bevy_spicy_networking::{ClientPlugin, NetworkData, NetworkMessage, ClientMessage, ClientNetworkEvent, AppNetworkClientMessage};
+use bevy_spicy_networking::{ClientPlugin, NetworkData, NetworkMessage, ServerMessage, ClientNetworkEvent, AppNetworkServerMessage};
 use serde::{Serialize, Deserialize};
 
 #[derive(Serialize, Deserialize)]
@@ -33,7 +33,7 @@ struct WorldUpdate;
 #[typetag::serde]
 impl NetworkMessage for WorldUpdate {}
 
-impl ClientMessage for WorldUpdate {
+impl ServerMessage for WorldUpdate {
     const NAME: &'static str = "example:WorldUpdate";
 }
 
@@ -68,7 +68,7 @@ fn handle_connection_events(mut network_events: EventReader<ClientNetworkEvent>,
 ## Example Server
 ```rust,no_run
 use bevy::prelude::*;
-use bevy_spicy_networking::{ServerPlugin, NetworkData, NetworkMessage, NetworkServer, ClientMessage, ServerMessage, ServerNetworkEvent, AppNetworkServerMessage};
+use bevy_spicy_networking::{ServerPlugin, NetworkData, NetworkMessage, NetworkServer, ServerMessage, ClientMessage, ServerNetworkEvent, AppNetworkClientMessage};
 
 use serde::{Serialize, Deserialize};
 #[derive(Serialize, Deserialize)]
@@ -77,7 +77,7 @@ struct UserInput;
 #[typetag::serde]
 impl NetworkMessage for UserInput {}
 
-impl ServerMessage for UserInput {
+impl ClientMessage for UserInput {
     const NAME: &'static str = "example:UserInput";
 }
 
@@ -105,7 +105,7 @@ struct PlayerUpdate;
 #[typetag::serde]
 impl NetworkMessage for PlayerUpdate {}
 
-impl ServerMessage for PlayerUpdate {
+impl ClientMessage for PlayerUpdate {
     const NAME: &'static str = "example:PlayerUpdate";
 }
 
@@ -150,13 +150,13 @@ mod server;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 
 use bevy::{prelude::*, utils::Uuid};
-pub use client::{AppNetworkServerMessage, NetworkClient};
+pub use client::{AppNetworkClientMessage, NetworkClient};
 use crossbeam_channel::{unbounded, Receiver, Sender};
 use derive_more::{Deref, Display};
 use error::NetworkError;
-pub use network_message::{ServerMessage, NetworkMessage, ClientMessage};
+pub use network_message::{ClientMessage, NetworkMessage, ServerMessage};
 use serde::{Deserialize, Serialize};
-pub use server::{AppNetworkClientMessage, NetworkServer};
+pub use server::{AppNetworkServerMessage, NetworkServer};
 
 struct SyncChannel<T> {
     pub(crate) sender: Sender<T>,

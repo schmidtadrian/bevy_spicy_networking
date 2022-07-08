@@ -13,7 +13,7 @@ use tokio::{
 
 use crate::{
     error::NetworkError,
-    network_message::{ServerMessage, NetworkMessage, ClientMessage},
+    network_message::{ClientMessage, NetworkMessage, ServerMessage},
     ConnectionId, NetworkData, NetworkPacket, NetworkSettings, ServerNetworkEvent, SyncChannel,
 };
 
@@ -139,7 +139,7 @@ impl NetworkServer {
     }
 
     /// Send a message to a specific client
-    pub fn send_message<T: ServerMessage>(
+    pub fn send_message<T: ClientMessage>(
         &self,
         client_id: ConnectionId,
         message: T,
@@ -166,7 +166,7 @@ impl NetworkServer {
     }
 
     /// Broadcast a message to all connected clients
-    pub fn broadcast<T: ServerMessage + Clone>(&self, message: T) {
+    pub fn broadcast<T: ClientMessage + Clone>(&self, message: T) {
         for connection in self.established_connections.iter() {
             let packet = NetworkPacket {
                 kind: String::from(T::NAME),
@@ -366,8 +366,8 @@ pub(crate) fn handle_new_incoming_connections(
     }
 }
 
-/// A utility trait on [`AppBuilder`] to easily register [`ClientMessage`]s
-pub trait AppNetworkClientMessage {
+/// A utility trait on [`AppBuilder`] to easily register [`ServerMessage`]s
+pub trait AppNetworkServerMessage {
     /// Register a server message type
     ///
     /// ## Details
@@ -375,18 +375,18 @@ pub trait AppNetworkClientMessage {
     /// - Add a new event type of [`NetworkData<T>`]
     /// - Register the type for transformation over the wire
     /// - Internal bookkeeping
-    fn listen_for_server_message<T: ClientMessage>(&mut self) -> &mut Self;
+    fn listen_for_server_message<T: ServerMessage>(&mut self) -> &mut Self;
 }
 
-impl AppNetworkClientMessage for App {
-    fn listen_for_server_message<T: ClientMessage>(&mut self) -> &mut Self {
+impl AppNetworkServerMessage for App {
+    fn listen_for_server_message<T: ServerMessage>(&mut self) -> &mut Self {
         let server = self.world.get_resource::<NetworkServer>().expect("Could not find `NetworkServer`. Be sure to include the `ServerPlugin` before listening for server messages.");
 
-        debug!("Registered a new ClientMessage: {}", T::NAME);
+        debug!("Registered a new ServerMessage: {}", T::NAME);
 
         assert!(
             !server.recv_message_map.contains_key(T::NAME),
-            "Duplicate registration of ClientMessage: {}",
+            "Duplicate registration of ServerMessage: {}",
             T::NAME
         );
         server.recv_message_map.insert(T::NAME, Vec::new());
@@ -399,7 +399,7 @@ fn register_server_message<T>(
     net_res: ResMut<NetworkServer>,
     mut events: EventWriter<NetworkData<T>>,
 ) where
-    T: ClientMessage,
+    T: ServerMessage,
 {
     let mut messages = match net_res.recv_message_map.get_mut(T::NAME) {
         Some(messages) => messages,
